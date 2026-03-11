@@ -1,132 +1,356 @@
-# 🔍 Anomaly Activity Detection Using Video Surveillance
+# Suspicious Activity Detection using YOLO and Roboflow
 
-An end-to-end **Deep Learning–based Suspicious Activity Detection System** designed to automate surveillance monitoring and enable **proactive real-time alerts** from CCTV video streams.
+## 1. Project Title
 
-This project uses a **Convolutional Recurrent Neural Network (CRNN)** architecture to detect anomalous human activities such as **Assault, Arson, Fighting**, and other criminal behaviors from untrimmed real-world surveillance footage.
-
----
-
-## 🚀 Motivation
-
-Modern surveillance systems generate massive volumes of video data, making manual monitoring inefficient and error-prone due to human fatigue. This project addresses that bottleneck by transforming surveillance from a **reactive forensic tool** into a **proactive intelligent security system**.
+**Suspicious Activity Detection using YOLO and Roboflow**
 
 ---
 
-## 🧠 System Overview
+# 2. Introduction
 
-The proposed pipeline models video as a **spatiotemporal problem**:
+Suspicious activity detection is an important application of computer vision in modern surveillance systems. Monitoring CCTV cameras manually is difficult and time-consuming. Therefore, automated systems are required to detect suspicious activities such as:
 
-1. **Spatial Feature Extraction**
-   - ResNet-50 (pre-trained on ImageNet)
-   - Extracts high-level visual features from individual frames
+* Weapon presence (gun, knife)
+* Fighting between people
+* Intrusion into restricted areas
 
-2. **Temporal Modeling**
-   - LSTM network
-   - Learns motion patterns and action evolution across frame sequences
+This project aims to develop a **computer vision-based detection system** that can automatically identify suspicious activities in images and videos.
 
-3. **Decision Layer**
-   - Fully connected classifier for anomaly prediction
+The system uses **YOLO (You Only Look Once)** for object detection and **Roboflow** for dataset preparation, annotation, and training.
 
-📌 This hybrid design balances **accuracy and computational efficiency**, avoiding expensive 3D convolutions.
+The final goal of this project is to **deploy the detection system on embedded hardware (such as Raspberry Pi or Jetson Nano) for real-time surveillance monitoring**.
 
 ---
 
-## 🏗 Architecture
+# 3. Objectives
 
-![alt text](image.png)
+The main objectives of this project are:
 
-**Pipeline:**  
-`Input Frames → ResNet-50 → Feature Vectors → LSTM → Anomaly Classification`
-
----
-
-## 📂 Dataset
-
-- **UCF-Crime Dataset**
-  - Real-world, untrimmed CCTV footage
-  - 14 activity classes including Normal, Assault, Arson, Fighting, Robbery, etc.
-  - Highly imbalanced and temporally sparse anomalies
-
-![alt text](image-1.png)
+* To prepare a dataset for suspicious activity detection
+* To annotate images using Roboflow
+* To train a YOLO-based object detection model
+* To detect suspicious objects or activities in images and videos
+* To build a prototype for future hardware deployment
 
 ---
 
-## ⚙ Methodology
+# 4. Tools and Technologies Used
 
-- **Temporal Subsampling**
-  - Divides long videos into fixed segments
-  - Extracts representative frames to reduce redundancy
-
-- **Transfer Learning**
-  - Frozen CNN backbone to leverage pre-trained visual features
-
-- **Sequence Modeling**
-  - Frame features grouped into clips and passed to LSTM
-
----
-
-## 📊 Results
-
-- Successfully detects complex anomalies from background activity
-- Demonstrates stable convergence and reliable classification
-- Suitable foundation for scalable intelligent surveillance systems
-
-### Sample Output
-
-![alt text](image-2.png)
-![alt text](image-3.png)
+| Tool              | Purpose                           |
+| ----------------- | --------------------------------- |
+| Roboflow          | Dataset management and annotation |
+| YOLOv8            | Object detection model            |
+| Python            | Model training and testing        |
+| OpenCV            | Video frame extraction            |
+| Google Colab      | Model testing and execution       |
+| Roboflow Universe | Public dataset source             |
 
 ---
 
-## 🧪 Evaluation Metrics
+# 5. Project Workflow
 
-- Confusion Matrix
-- Precision, Recall, F1-score
-- Validation Loss Monitoring
+The complete system workflow is shown below.
 
-
----
-
-## 🛠 Tech Stack
-
-- **Languages:** Python 3.8+
-- **Frameworks:** PyTorch / TensorFlow
-- **Vision:** OpenCV, Pillow
-- **Models:** ResNet-50, LSTM
-- **Hardware:** NVIDIA GPU recommended (CUDA-enabled)
-
----
-
-## 📌 Key Features
-
-- Real-world anomaly detection (not staged data)
-- Efficient CRNN-based architecture
-- Scalable for long, untrimmed videos
-- Designed for real-time surveillance adaptation
+```
+Video Input
+     ↓
+Frame Extraction
+     ↓
+Dataset Preparation
+     ↓
+Annotation (Roboflow)
+     ↓
+Dataset Generation
+     ↓
+Model Training (YOLO)
+     ↓
+Detection on Image / Video
+```
 
 ---
 
-## 🔮 Future Scope
+# 6. Dataset Preparation
 
-- Extended training with hyperparameter tuning
-- Data augmentation for robustness
-- Model quantization for edge deployment
-- Real-time alerting and deployment integration
+## 6.1 Video Dataset
 
----
+Initially, a surveillance video containing suspicious activity was selected.
 
-## 👨‍💻 Authors
+Since YOLO models require **images for training**, the video was converted into multiple image frames.
 
-- **More Kshitij**
-- **Patadiya Vishesh**
-- **Tanpure Anushka**
-- **Waghchaure Saraswati**
-
-**Guided by:** Dr. S. S. Mohite  
-COEP Technological University
+Approximately **60–70 frames** were extracted from the video to create the dataset.
 
 ---
 
-## 📜 License
+## 6.2 Frame Extraction
 
-This project is intended for academic and research purposes.
+Frames were extracted using Python and OpenCV.
+
+Example code:
+
+```python
+import cv2
+
+video = cv2.VideoCapture("video.mp4")
+count = 0
+
+while True:
+    ret, frame = video.read()
+    if not ret:
+        break
+
+    cv2.imwrite(f"frame_{count}.jpg", frame)
+    count += 1
+
+video.release()
+```
+
+This process converts the video into multiple images which can be used for training.
+
+---
+
+# 7. Dataset Annotation using Roboflow
+
+After extracting frames, the images were uploaded to Roboflow.
+
+Steps followed:
+
+1. Create a new project in Roboflow
+2. Select **Object Detection** as the project type
+3. Upload extracted image frames
+4. Annotate objects using bounding boxes
+
+### Labels used in the project
+
+| Label  | Description       |
+| ------ | ----------------- |
+| person | human detection   |
+| gun    | weapon detection  |
+| knife  | weapon detection  |
+| fight  | fighting activity |
+
+Bounding boxes were drawn around objects or actions in the images.
+
+---
+
+# 8. Automatic Annotation
+
+Roboflow provides an **Auto Labeling feature** which can automatically detect common objects like persons.
+
+Workflow used:
+
+```
+Upload Images
+     ↓
+Auto Label Person
+     ↓
+Manual Correction
+     ↓
+Final Annotation
+```
+
+This reduced the annotation time significantly.
+
+---
+
+# 9. Dataset Generation
+
+After annotation, a **dataset version** was generated.
+
+Dataset preprocessing included:
+
+* Image resizing to **640 × 640**
+* Auto orientation correction
+* Image normalization
+
+---
+
+# 10. Data Augmentation
+
+To improve model performance, data augmentation techniques were applied:
+
+* Image flipping
+* Rotation
+* Brightness adjustment
+* Noise addition
+
+This increased the effective dataset size and improved training.
+
+---
+
+# 11. Combining Multiple Datasets
+
+To improve suspicious activity detection, multiple datasets were combined.
+
+Datasets used:
+
+1. Weapon Detection Dataset
+2. Fight Detection Dataset
+
+Steps followed:
+
+1. Create a new project in Roboflow
+2. Add weapon dataset
+3. Add fight dataset to the same project
+4. Ensure label consistency
+5. Generate dataset version
+
+This created a **multi-class dataset** containing:
+
+```
+person
+gun
+knife
+fight
+```
+
+---
+
+# 12. Model Training
+
+The dataset was exported in **YOLO format** and trained using YOLOv8.
+
+Example training code:
+
+```python
+from ultralytics import YOLO
+
+model = YOLO("yolov8n.pt")
+
+model.train(
+    data="data.yaml",
+    epochs=50,
+    imgsz=640
+)
+```
+
+The training process allowed the model to learn patterns of suspicious activities.
+
+---
+
+# 13. Model Testing
+
+The trained model was tested on images and videos.
+
+### Image Detection
+
+```python
+model.predict("test.jpg", show=True)
+```
+
+The model detects objects and draws bounding boxes around them.
+
+Example output:
+
+```
+person – 0.92
+gun – 0.87
+```
+
+---
+
+# 14. Video Detection
+
+Although YOLO is trained on images, it can detect objects in videos by analyzing each frame.
+
+Example code:
+
+```python
+model.predict(
+    source="video.mp4",
+    save=True
+)
+```
+
+The system processes the video frame by frame and detects suspicious activities.
+
+---
+
+# 15. Testing in Google Colab
+
+The model was tested using Google Colab.
+
+Steps performed:
+
+1. Install YOLO
+
+```
+pip install ultralytics
+```
+
+2. Upload trained model and video
+
+3. Run detection
+
+```python
+from ultralytics import YOLO
+
+model = YOLO("best.pt")
+
+model.predict(source="video.mp4", save=True)
+```
+
+The output video contains bounding boxes showing detected objects.
+
+---
+
+# 16. Results
+
+The trained model was able to detect:
+
+* Person in the scene
+* Weapon objects such as gun or knife
+* Fighting activity
+
+Detection results were visualized using bounding boxes and confidence scores.
+
+---
+
+# 17. Limitations
+
+Since the dataset used for training contained only **60–70 frames**, the model performance was limited.
+
+Challenges observed:
+
+* Incorrect detection in some frames
+* Missed objects in low-quality images
+* Lower confidence scores
+
+These issues can be improved by increasing dataset size.
+
+---
+
+# 18. Future Scope
+
+Future improvements include:
+
+* Increasing dataset size
+* Training with larger datasets
+* Improving detection accuracy
+* Deploying the model on embedded hardware
+* Real-time CCTV monitoring
+
+---
+
+# 19. Hardware Implementation Plan
+
+The final system will work as follows:
+
+```
+CCTV Camera
+     ↓
+Embedded Device (Raspberry Pi / Jetson Nano)
+     ↓
+YOLO Detection Model
+     ↓
+Suspicious Activity Alert
+```
+
+This will allow real-time detection of suspicious activities.
+
+---
+
+# 20. Conclusion
+
+This project demonstrates the use of computer vision for suspicious activity detection. Using Roboflow for dataset preparation and YOLO for object detection, a prototype model was developed to detect activities such as weapon presence and fighting.
+
+Although the current model uses a small dataset, the project successfully demonstrates the pipeline required for building an automated surveillance detection system. Future work will focus on improving the dataset and deploying the model on hardware for real-time monitoring.
